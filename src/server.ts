@@ -1,7 +1,7 @@
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
-import { readdir, stat } from "fs/promises";
+import { readdir, stat, readFile } from "fs/promises";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,6 +14,7 @@ const downloadDir = process.env.DOWNLOAD_DIR
   : path.resolve(process.cwd(), "downloads");
 
 const publicDir = path.resolve(process.cwd(), "public");
+const pinnedFileName = process.env.PINNED_FILE || "pinned.txt";
 
 const toPosixPath = (value: string) => value.split(path.sep).join("/");
 
@@ -88,6 +89,25 @@ app.get("/api/files", async (req, res) => {
       error: "Failed to read download directory",
       details: error instanceof Error ? error.message : "Unknown error"
     });
+  }
+});
+
+app.get("/api/pinned", async (_req, res) => {
+  try {
+    const pinnedPath = path.join(downloadDir, pinnedFileName);
+    const info = await stat(pinnedPath);
+    if (!info.isFile()) {
+      return res.status(404).json({ ok: false });
+    }
+    const content = await readFile(pinnedPath, "utf8");
+    res.json({
+      ok: true,
+      name: pinnedFileName,
+      content,
+      updatedAt: info.mtime.toISOString()
+    });
+  } catch {
+    res.status(404).json({ ok: false });
   }
 });
 

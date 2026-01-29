@@ -28,6 +28,14 @@
           <span>files</span>
           <span id="file-count" class="count">0</span>
         </div>
+        <div id="pinned" class="pinned" hidden>
+          <div class="pinned-head">
+            <span>pinned</span>
+            <span id="pinned-updated"></span>
+          </div>
+          <pre id="pinned-content" class="pinned-content"></pre>
+        </div>
+        <div class="path" id="path"></div>
         <ul id="file-list" class="list" aria-live="polite"></ul>
         <p id="empty-state" class="empty">no files yet.</p>
         <p id="error-state" class="error" hidden>couldn't reach the server.</p>

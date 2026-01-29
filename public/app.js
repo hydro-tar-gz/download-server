@@ -4,6 +4,9 @@ const empty = document.getElementById("empty-state");
 const error = document.getElementById("error-state");
 const updated = document.getElementById("updated-at");
 const pathEl = document.getElementById("path");
+const pinnedEl = document.getElementById("pinned");
+const pinnedUpdated = document.getElementById("pinned-updated");
+const pinnedContent = document.getElementById("pinned-content");
 
 const formatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 1
@@ -108,6 +111,21 @@ const renderFiles = (files) => {
   });
 };
 
+const loadPinned = async () => {
+  try {
+    const response = await fetch("/api/pinned");
+    if (!response.ok) throw new Error("no pinned");
+    const data = await response.json();
+    pinnedContent.textContent = data.content?.trim() || "";
+    pinnedUpdated.textContent = data.updatedAt
+      ? formatDate(data.updatedAt)
+      : "";
+    pinnedEl.hidden = !pinnedContent.textContent;
+  } catch {
+    pinnedEl.hidden = true;
+  }
+};
+
 const loadFiles = async (path = getPathParam()) => {
   try {
     const query = path ? `?path=${encodeURIComponent(path)}` : "";
@@ -140,4 +158,5 @@ window.addEventListener("popstate", (event) => {
   loadFiles(nextPath);
 });
 
+loadPinned();
 loadFiles();
